@@ -30,7 +30,7 @@ app.post("/api/chat", async (req, res) => {
                 "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`
             },
             body: JSON.stringify({
-                model: "meta-llama/llama-3.1-8b-instruct:free",
+                model: "openrouter/free",
                 messages: messages,
                 temperature: 0.7,
                 max_tokens: 1000,
