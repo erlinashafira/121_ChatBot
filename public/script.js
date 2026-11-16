@@ -54,3 +54,28 @@ chatForm.addEventListener("submit", async (event) => {
                 errorData.error || "Terjadi kesalahan"
             );
         }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                break;
+            }
+            // Decode data
+            buffer += decoder.decode(value, {
+                stream: true
+            });
+            // Pisahkan berdasarkan newline
+            const lines = buffer.split("\n");
+            // Simpan bagian yang belum lengkap
+            buffer = lines.pop();
+            for (const line of lines) {
+                const trimmedLine = line.trim();
+                if (!trimmedLine) {
+                    continue;
+                }
+                if (!trimmedLine.startsWith("data:")) {
+                    continue;
+                }
