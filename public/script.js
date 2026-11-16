@@ -21,5 +21,19 @@ chatForm.addEventListener("submit", async (event) => {
     const message = userInput.value.trim();
     if (!message) {
         return;
-}
+    }
 
+    addMessage(message, "user");
+    messages.push({
+        role: "user",
+        content: message
+    });
+   
+    userInput.value = "";
+    // Disable input sementara
+    userInput.disabled = true;
+    const button = chatForm.querySelector("button");
+    button.disabled = true;
+    button.textContent = "Menunggu...";
+
+    
