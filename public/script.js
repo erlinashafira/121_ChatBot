@@ -23,12 +23,17 @@ chatForm.addEventListener("submit", async (event) => {
         return;
     }
 
+    // ====================
+    // Tampilkan pesan user
+    // ====================
+
     addMessage(message, "user");
+    // Simpan pesan user
     messages.push({
         role: "user",
         content: message
     });
-   
+    // Kosongkan input
     userInput.value = "";
     // Disable input sementara
     userInput.disabled = true;
@@ -36,6 +41,9 @@ chatForm.addEventListener("submit", async (event) => {
     button.disabled = true;
     button.textContent = "Menunggu...";
 
+    // ====================
+    // Buat bubble AI kosong
+    // ====================
     const botContent = addMessage("", "bot");
     let botResponse = "";
     try {
@@ -55,6 +63,9 @@ chatForm.addEventListener("submit", async (event) => {
             );
         }
 
+        // ====================
+        // Baca streaming response
+        // ====================
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
@@ -79,30 +90,48 @@ chatForm.addEventListener("submit", async (event) => {
                 if (!trimmedLine.startsWith("data:")) {
                     continue;
                 }
+                const data = trimmedLine
+                    .slice(5)
+                    .trim();
+                if (data === "[DONE]") {
+                    continue;
+                }
+                try {
+                    const token = JSON.parse(data);
+                    // Tambahkan token
+                    botResponse += token;
+                    // Update tampilan
+                    botContent.textContent = botResponse;
+                    // Auto scroll
+                    chatBox.scrollTop =
+                        chatBox.scrollHeight;
+                } catch (error) {
+                    console.error(
+                        "Gagal membaca token:",
+                        error
+                    );
+                }
+            }
+        }
 
-                if (!trimmedLine.startsWith("data:")) {
-            continue;
-        }
-        const data = trimmedLine
-            .slice(5)
-            .trim();
-        if (data === "[DONE]") {
-            continue;
-        }
-        try {
-            const token = JSON.parse(data);
-            // Tambahkan token
-            botResponse += token;
-            // Update tampilan
-            botContent.textContent = botResponse;
-            // Auto scroll
-            chatBox.scrollTop =
-                chatBox.scrollHeight;
-        } catch (error) {
-            console.error(
-                "Gagal membaca token:",
-                error
-            );
-        }
+        // ====================
+        // Simpan response AI
+        // ====================
+        messages.push({
+            role: "assistant",
+            content: botResponse
+        });
+
+    } catch (error) {
+        console.error(error);
+        botContent.textContent =
+            "Maaf, terjadi kesalahan: " +
+            error.message;
+    } finally {
+        // Aktifkan kembali input
+        userInput.disabled = false;
+        button.disabled = false;
+        button.textContent = "Kirim";
+        userInput.focus();
     }
-}
+});
