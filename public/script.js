@@ -79,3 +79,30 @@ chatForm.addEventListener("submit", async (event) => {
                 if (!trimmedLine.startsWith("data:")) {
                     continue;
                 }
+
+                if (!trimmedLine.startsWith("data:")) {
+            continue;
+        }
+        const data = trimmedLine
+            .slice(5)
+            .trim();
+        if (data === "[DONE]") {
+            continue;
+        }
+        try {
+            const token = JSON.parse(data);
+            // Tambahkan token
+            botResponse += token;
+            // Update tampilan
+            botContent.textContent = botResponse;
+            // Auto scroll
+            chatBox.scrollTop =
+                chatBox.scrollHeight;
+        } catch (error) {
+            console.error(
+                "Gagal membaca token:",
+                error
+            );
+        }
+    }
+}
